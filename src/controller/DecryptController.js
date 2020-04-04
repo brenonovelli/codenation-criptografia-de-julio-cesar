@@ -1,14 +1,14 @@
-import "dotenv/config";
-import request from "request";
-import rp from "request-promise";
-import sha1 from "js-sha1";
-import fs from "fs";
-import path from "path";
-import { promisify } from "util";
+import 'dotenv/config';
+import request from 'request';
+import rp from 'request-promise';
+import sha1 from 'js-sha1';
+import fs from 'fs';
+import path from 'path';
+import { promisify } from 'util';
 
 class DecryptController {
   async store(req, res) {
-    const jsonPath = path.resolve(__dirname, "..", "tmp", "anwser.json");
+    const jsonPath = path.resolve(__dirname, '..', 'tmp', 'anwser.json');
 
     const readFileAsync = promisify(fs.readFile);
     const writeFileAsync = promisify(fs.writeFile);
@@ -62,23 +62,23 @@ class DecryptController {
 
       const form = resquestConfig.form();
 
-      form.append("answer", fs.createReadStream(jsonPath), {
-        filename: "answer.json"
+      form.append('answer', fs.createReadStream(jsonPath), {
+        filename: 'answer.json',
       });
     };
 
     const handleJson = async () => {
-      console.log("passou 01");
+      console.log('passou 01');
 
       const jsonData = await readFileAsync(jsonPath);
       const answer = JSON.parse(jsonData);
 
-      console.log("passou 02");
+      console.log('passou 02');
 
-      const decrypt = stringReceived => {
-        let str = stringReceived
+      const decrypt = (stringReceived) => {
+        const str = stringReceived
           .toLowerCase()
-          .replace(/[a-z]/g, letter =>
+          .replace(/[a-z]/g, (letter) =>
             String.fromCharCode(letter.charCodeAt(0) - answer.numero_casas)
           );
         return str;
@@ -90,17 +90,17 @@ class DecryptController {
       const newJson = JSON.stringify({
         ...answer,
         decifrado,
-        resumo_criptografico
+        resumo_criptografico,
       });
 
-      await writeFileAsync(jsonPath, newJson, "utf8", err => {
+      await writeFileAsync(jsonPath, newJson, 'utf8', (err) => {
         if (err) {
           return console.log(
             `Algo de errado aconteceu ao salvar o JSON. ${err}`
           );
         }
 
-        console.log("JSON salvo com sucesso.");
+        console.log('JSON salvo com sucesso.');
 
         sendJson();
       });
@@ -108,22 +108,22 @@ class DecryptController {
 
     // Request JSON
     await rp(urlReq)
-      .then(async res => {
-        await writeFileAsync(jsonPath, res, "utf8", err => {
+      .then(async (res) => {
+        await writeFileAsync(jsonPath, res, 'utf8', (err) => {
           if (err) {
             console.log(`Algo de errado aconteceu ao salvar o JSON. ${err}`);
           }
-          console.log("JSON criado com sucesso.");
+          console.log('JSON criado com sucesso.');
 
           handleJson();
         });
       })
-      .catch(function(err) {
+      .catch(function (err) {
         console.log(err);
       });
 
-    console.log("passou 08");
-    return res.json("Nada aconteceu.");
+    console.log('passou 08');
+    return res.json('Nada aconteceu.');
   }
 }
 
